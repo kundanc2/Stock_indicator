@@ -19,16 +19,21 @@ def main():
     if st.button('Predict'):
         # Fetch news
         news_data = data_fetcher.get_news(stock_ticker)
-        
+
+        # Check if the response contains the 'articles' key
+        if 'articles' not in news_data:
+            st.error("Error fetching news articles. Please check the API key and try again.")
+            return
+
         # Preprocess news articles
-        preprocessed_news = [text_processor.preprocess_text(article['content']) for article in news_data['articles']]
-        
+        preprocessed_news = [text_processor.preprocess_text(article['content']) for article in news_data['articles'] if 'content' in article]
+
         # Perform sentiment analysis
         sentiments = [sentiment_analyzer.get_sentiment(article) for article in preprocessed_news]
-        
+
         # Predict stock movement
         predictions = predictor.predict_stock_movement(sentiments)
-        
+
         # Display results
         st.write(f'Predictions: {predictions}')
 
